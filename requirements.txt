@@ -3,3 +3,7 @@ numpy
 pandas
 pydeck
 streamlit
+st-gsheets-connection
+gcsfs==2023.10.0
+st-files-connection
+plotly
