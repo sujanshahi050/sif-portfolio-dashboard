@@ -9,73 +9,68 @@ import plotly.express as px
 from st_files_connection import FilesConnection
 from datetime import datetime
 
-# Function to get data
+# ----------------------- Accessing Data -------------------------
+
+# Accessing the data stored in a Google Cloud Platform Bucket 
 @st.cache_data
 def get_data():
     conn = st.connection('gcs', type=FilesConnection)
-    data = conn.read("sif_bucket/sample_data_11_19_23.csv", ttl=600)
-    data['DATE'] = pd.to_datetime(data['DATE'], format = '%Y%m%d').dt.strftime('%Y-%m-%d')
+    data = conn.read("stepscount_dashboard/stepcount_data_2023.csv", ttl=600)
     return data
 
 # Assign the data to a dataframe
 df = get_data()
 
-# Select variable for comparison
-selected_variables = st.multiselect('Select Variable', df.columns[2:])
+# ----------------------- Main Page ----------------------------
 
-# Select ticker
-selected_ticker = st.multiselect('Select Ticker', df['SYMBOL'].unique(), default=df['SYMBOL'].unique()[0])
+# Row 1 - Contains metrics such as  "Total Steps Walked", "Total Hours Walked", "Steps to Hours Ratio"
+total_steps = df['StepCount'].sum() # Total Steps Walked
+total_hours = df['DurationHours'].sum() # Total Hours Walked
+st.markdown('### Year 2023 in glance')
+col1, col2, col3 = st.columns(3)
 
-# Filter dataframe based on selected ticker(s)
-filtered_df = df[df['SYMBOL'].isin(selected_ticker)]
+# Card for Total Steps Walked
+col1.markdown( 
+    f'<div style="border: 2px solid #ccc; border-radius: 10px; padding: 20px; text-align: center;">'
+    f'<h3 style="margin-bottom: 0;">Total Steps Walked 👣</h3>'
+    f'<p style="font-size: 24px; font-weight: bold; color: #4CAF50;">{round(total_steps):,.0f} steps</p>'
+    f'</div>',
+    unsafe_allow_html=True
+    )
 
-# Create line chart with range selector button
-fig = px.line(filtered_df, x='DATE', y=selected_variables, color='SYMBOL',
-              labels={'value': 'Value', 'variable': 'Metric'})
-
-# Add date range slider within the chart layout
-fig.update_layout(
-    xaxis_rangeslider_visible=True,
-    xaxis_title='Date Range',
-    yaxis_tickformat=".6f",  # Adjust this format based on your preference
+# Card for Total Hours Walked
+col2.markdown(
+    f'<div style="border: 2px solid #ccc; border-radius: 10px; padding: 20px; text-align: center;">'
+    f'<h3 style="margin-bottom: 0;">Total Hours Walked ⌛</h3>'
+    f'<p style="font-size: 24px; font-weight: bold; color: #01796F;">{round(total_hours):,.0f} hrs</p>'
+    f'</div>',
+    unsafe_allow_html=True
 )
 
-# Add range selector buttons and show gridlines
-fig.update_layout(
-    xaxis=dict(
-        rangeselector=dict(
-            buttons=list([
-                dict(count=1, label="1d", step="day", stepmode="backward"),
-                dict(count=7, label="1w", step="day", stepmode="backward"),
-                dict(count=1, label="1mo", step="month", stepmode="backward"),
-                dict(count=6, label="6mo", step="month", stepmode="backward"),
-                dict(step="all")
-            ]),
-            bgcolor='green',  # Background color of range selector
-            font=dict(color='white')  # Font color of range selector
-        ),
-        rangeslider=dict(visible=True),
-        type="date",
-        tickfont=dict(color='black'),  # Font color of x-axis ticks
-        showgrid=True,  # Show x-axis gridlines
-        gridcolor='grey'  # Color of gridlines
-    ),
-    yaxis=dict(
-        title=dict(text=", ".join(selected_variables), font=dict(color='white')),  # Join variables into a single string  # Font color of y-axis title
-        tickfont=dict(color='black'),  # Font color of y-axis ticks
-        showgrid=True,  # Show y-axis gridlines
-        gridcolor='grey',  # Color of gridlines
-        rangemode='tozero'  # Start y-axis from zero
-    ),
-    paper_bgcolor='white',  # Background color of the entire chart
-    plot_bgcolor='white'  # Background color of the plot area
+# Card for Steps Walked per Hour
+col3.markdown(
+    f'<div style="border: 2px solid #ccc; border-radius: 10px; padding: 20px; text-align: center;">'
+    f'<h3 style="margin-bottom: 0;"> Steps Walked per Hour </h3>'
+    f'<p style="font-size: 24px; font-weight: bold; color: #8A9A5B;">{round(total_steps/total_hours):,.0f} steps/hr</p>'
+    f'</div>',
+    unsafe_allow_html=True
 )
 
 
-# Display the chart
-st.plotly_chart(fig)
-# Plot the data
 
+
+
+
+
+# ---- HIDE STREAMLIT STYLE ----
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 
 
 
