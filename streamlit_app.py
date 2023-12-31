@@ -38,8 +38,6 @@ total_days_in_year = 365
 
 # ---------------------------------------------- Main Page Layout----------------------------------
 
-
-
 # Dashboard Title with Style
 st.markdown(
     """
@@ -59,6 +57,7 @@ st.markdown(
         <p>This dashboard visualizes step count data collected from the "Fitness Tracker" app on my iPhone 📱.</p>
         <p>The data was processed using Python 🐍, and the cleaned data is stored in a Google Cloud Bucket 🪣.</p>
         <p>Streamlit is used to host and present the data in an interactive and informative way.</p>
+        <p>Created By: <a href="https://www.linkedin.com/in/sujan-shahi/" target="_blank">Sujan Shahi</a></p>
     </div>
     """,
     unsafe_allow_html=True
@@ -139,7 +138,7 @@ st.plotly_chart(fig_goal_progress)
 st.markdown(
     """
     <div style="text-align: center; margin-top: 30px; font-style: italic; color: #777;">
-        <p> Created By Sujan Shahi in 2023. </p>
+        <p>2023. </p>
     </div>
     """,
     unsafe_allow_html=True
